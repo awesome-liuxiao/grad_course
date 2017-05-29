@@ -1,79 +1,54 @@
 #include <iostream>
-#include <fstream>
-#include <queue>
-#include <cstring>
+#include <stdio.h>
+#include <string.h>
+#include <vector>
+#define maxn 222
+#define inf 0x3f3f3f3f
 using namespace std;
-
-int N,M;  //边数，顶点数
-const int maxN=201;
-bool visited[maxN];
-int pre[maxN];          //前驱节点
-int c[maxN][maxN];
-int ans;
-
-void Ford_Fulkerson()
-{
-	while(1)
-	{
-		queue<int> q;
-		memset(visited,0,sizeof(visited));
-		memset(pre,-1,sizeof(pre));
-		q.push(0);  //第一个定点入队
-		visited[0]=1; //打上已经被访问的标记
-		while(!q.empty())
-		{
-			int now=q.front();
-			if(now==M-1) //注意：找到一条增广路径后就跳出循环
-				break;
-			q.pop();
-			for(int i=0; i<M; i++)
-			{
-				if(c[now][i]&&!visited[i])
-				{
-					q.push(i);
-					visited[i]=1;
-					pre[i]=now;
-				}
+struct edge {
+	int to;
+	int cap;
+	int rev;
+};
+vector<edge>e[maxn];
+int book[maxn];
+int dfs(int cur,int end,int flow){
+	if(cur == end)
+		return flow;
+	book[cur] = 1;
+	for(int i = 0; i<e[cur].size(); i++) {
+		edge &temp = e[cur][i];
+		if(!book[temp.to] && temp.cap>0) {
+			int d = dfs(temp.to,end,min(flow,temp.cap));
+			if(d > 0) {
+				temp.cap -= d;
+				e[temp.to][temp.rev].cap += d;
+				return d;
 			}
 		}
-		if(!visited[M-1])
-			break;
-		int min=0x7fffffff;
-		for(int i=M-1; i>0; i=pre[i]) //注意For循环的条件
-		{
-			if(c[pre[i]][i]<min)
-				min=c[pre[i]][i];
-		}
-
-		for(int i=M-1; i>0; i=pre[i])
-		{
-			c[pre[i]][i]-=min; //前向弧增加min
-			c[i][pre[i]]+=min; //后向弧减小min
-		}
-		ans+=min;
 	}
+	return 0;
 }
-
-
-int main()
-{
-	//ifstream cin;
-	//cin.open("input.txt");
-	while(cin>>N>>M)
-	{
-		int v,s,w;
-		ans=0;
-		memset(c,0,sizeof(c));
-		for(int i=0; i<N; i++)
-		{
-			cin>>v>>s>>w;
-			c[v-1][s-1]+=w;
+int main(){
+	int n,m;
+	while(scanf("%d%d",&n,&m)!=EOF) {
+		for(int i = 1; i<=n; i++)
+			e[i].clear();
+		int u,v,w;
+		for(int i = 0; i<n; i++) {
+			scanf("%d%d%d",&u,&v,&w);
+			e[u].push_back((edge){v,w,e[v].size()});
+			e[v].push_back((edge){u,0,e[u].size()-1});
 		}
-
-		//cin.close();
-
-		Ford_Fulkerson();
-		cout<<ans<<endl;
+		int ans = 0;
+		while(1) {
+			memset(book,0,sizeof(book));
+			int temp = dfs(1,m,inf);
+			if(temp == 0)
+				break;
+			ans += temp;
+		}
+		printf("%d\n",ans);
 	}
 	return 0;
 }
