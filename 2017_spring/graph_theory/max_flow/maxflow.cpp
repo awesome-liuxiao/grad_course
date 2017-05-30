@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <stdio.h>
-#define MAX 999999
+#define MAX 100
 using namespace std;
 
 class Graph
