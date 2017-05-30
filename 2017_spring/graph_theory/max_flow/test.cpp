@@ -1,54 +1,158 @@
 #include <iostream>
-#include <stdio.h>
-#include <string.h>
+#include <queue>
 #include <vector>
-#define maxn 222
-#define inf 0x3f3f3f3f
+#include <cmath>
+#include <stdio.h>
+#define MAX 999999
 using namespace std;
-struct edge {
-	int to;
-	int cap;
-	int rev;
+
+class Graph
+{
+private:
+struct vertex
+{
+	int num;                    //编号
+	int flag;                  //正向或负向标记
+	int ver;                  //来自哪条边
+	int flow;                 //流量标记
+	vector<int>f_edge;        //前向边
+	vector<int>u;            //前向边的流量
+	vector<int>b_edge;        //后向边
+	vector<int>x;           //后向边的流量
+	vertex(int num,int flag,int flow) : num(num),flag(flag),flow(flow){       //  u.push_back(0);	x.push_back(0);
+	}
 };
-vector<edge>e[maxn];
-int book[maxn];
-int dfs(int cur,int end,int flow){
-	if(cur == end)
-		return flow;
-	book[cur] = 1;
-	for(int i = 0; i<e[cur].size(); i++) {
-		edge &temp = e[cur][i];
-		if(!book[temp.to] && temp.cap>0) {
-			int d = dfs(temp.to,end,min(flow,temp.cap));
-			if(d > 0) {
-				temp.cap -= d;
-				e[temp.to][temp.rev].cap += d;
-				return d;
+int N;                      //边数
+vector<vertex>v;
+public:
+Graph(int n) : N(n)
+{
+	for(int i=0; i<=n; i++)
+	{
+		vertex tmp(i,0,0);
+		v.push_back(tmp);
+		for(int j=0; j<=n; j++)
+		{
+			v[i].u.push_back(0);
+			v[i].x.push_back(0);
+		}
+	}
+
+	v[1].flag=-1;           //源点标记为-1
+	v[1].flow=MAX;
+
+}
+void Edge_flow(int i,int j,int flow)
+{
+	v[i].f_edge.push_back(j);
+	v[i].u[j]=flow;
+	v[j].b_edge.push_back(i);
+}
+int Max_flow()
+{
+
+	queue<int>Q;
+	Q.push(1);
+	int max_f=0;
+	while(!Q.empty())
+	{
+		int i=Q.front(); Q.pop();
+		int l=v[i].flow;
+		for(unsigned int k=0; k<v[i].f_edge.size(); k++)
+		{
+			int j=v[i].f_edge[k];
+			if(v[j].flag==0)
+			{
+
+				int r=v[i].u[j]-v[i].x[j];
+				if(r>0)
+				{
+					l=min(l,r);
+					v[j].flag=1; v[j].ver=i; v[j].flow=l;
+					Q.push(j);
+				}
+			}
+		}
+		for(unsigned int k=0; k<v[i].b_edge.size(); k++)
+		{
+			int j=v[i].b_edge[k];
+			if(v[j].flag==0)
+			{
+				int r=v[j].x[i];
+				if(r>0)
+				{
+					l=min(l,r);
+					v[j].flag=-1; v[j].ver=i; v[j].flow=l;
+					Q.push(j);
+				}
+			}
+		}
+		if(v[N].flag!=0)
+		{
+			int j=N;
+			max_f+=l;
+			cout<<"One of the path is :";
+			while(j!=1)
+			{
+				cout<<j<<" from ";
+				int k=v[j].ver;
+				if(v[j].flag==1)
+					v[k].x[j]+=l;
+				if(v[j].flag==-1)
+					v[j].x[k]-=l;
+				j=k;
+			}
+			cout<<1<<" and the flow is "<<l<<endl;
+			while(!Q.empty())
+				Q.pop();
+			for(int i=2; i<=N; i++)
+				v[i].flag=0;
+			Q.push(1);
+		}
+
+	}
+	return max_f;
+}
+void Min_cut()
+{
+	for(int i=1; i<N; i++)
+	{
+		if(v[i].flag!=0)
+		{
+			for(unsigned int k=0; k<v[i].f_edge.size(); k++)
+			{
+				int j=v[i].f_edge[k];
+				if(v[j].flag==0&&v[i].flag!=0)
+					cout<<"("<<i<<","<<j<<")"<<";  ";
 			}
 		}
 	}
-	return 0;
 }
-int main(){
-	int n,m;
-	while(scanf("%d%d",&n,&m)!=EOF) {
-		for(int i = 1; i<=n; i++)
-			e[i].clear();
-		int u,v,w;
-		for(int i = 0; i<n; i++) {
-			scanf("%d%d%d",&u,&v,&w);
-			e[u].push_back((edge){v,w,e[v].size()});
-			e[v].push_back((edge){u,0,e[u].size()-1});
+
+};
+int main()
+{
+	// freopen("in.txt","r",stdin);
+	// freopen("out.txt","w",stdout);
+	int ver;
+
+	while(cin>>ver)
+	{
+		Graph G(ver);
+		int edge;
+		cin>>edge;
+		int i,j,flow;
+		while(edge--)
+		{
+			cin>>i>>j>>flow; javascript:;
+			G.Edge_flow(i,j,flow);
 		}
-		int ans = 0;
-		while(1) {
-			memset(book,0,sizeof(book));
-			int temp = dfs(1,m,inf);
-			if(temp == 0)
-				break;
-			ans += temp;
-		}
-		printf("%d\n",ans);
+		cout<<"The max_flow is :"<<G.Max_flow()<<endl;
+		cout<<"One of the min_cut is :";
+		G.Min_cut();
+		cout<<endl;
 	}
+	// fclose(stdin);
+	// fclose(stdout);
 	return 0;
 }

@@ -29,13 +29,13 @@ int pre[maxn], rec[maxn], mins[maxn], head[maxn];
 
 void Add_edge(int a, int b, int c)
 {
-    cout << "edge["<<tot<<"].to = " << b <<"; edge["<<tot<<"].flow = "<<c<<"; edge["<< tot << "].next = " <<head[a]<<'\n';
+	// cout << "edge["<<tot<<"].to = " << b <<"; edge["<<tot<<"].flow = "<<c<<"; edge["<< tot << "].next = " <<head[a]<<'\n';
 	edge[tot].to = b; edge[tot].flow = c; edge[tot].next = head[a];
-    refEdge[tot].to = b; refEdge[tot].flow = c; refEdge[tot].next = head[a];
+	refEdge[tot].to = b; refEdge[tot].flow = c; refEdge[tot].next = head[a];
 	head[a] = tot++;
-    cout << "edge["<<tot<<"].to = " << a <<"; edge["<<tot<<"].flow = 0; edge["<< tot << "].next = " <<head[b]<<'\n';
+	// cout << "edge["<<tot<<"].to = " << a <<"; edge["<<tot<<"].flow = 0; edge["<< tot << "].next = " <<head[b]<<'\n';
 	edge[tot].to = a; edge[tot].flow = 0; edge[tot].next = head[b];
-    refEdge[tot].to = a; refEdge[tot].flow = 0; refEdge[tot].next = head[b];
+	refEdge[tot].to = a; refEdge[tot].flow = 0; refEdge[tot].next = head[b];
 	head[b] = tot++;
 }
 
@@ -79,6 +79,7 @@ int Ford_Fulkerson()
 	int add, Maxflow = 0;
 	while((add = DFS()) != -1)
 	{//算法知道无法找到增广路径才停止
+		cout << "Maxflow is " << Maxflow << endl;
 		Maxflow += add;
 		for(int i = T; i != S; i = pre[i]) //修改残余网络
 		{
