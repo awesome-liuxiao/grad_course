@@ -142,19 +142,12 @@ int main()
 	{
 		Graph G(ver);
 		int edge;
-		//cin>>edge;
-		int to,flow;
-        int from, verNum;
-		for(int i = 0; i < ver; i++)
+		cin>>edge;
+		int i,j,flow;
+		while(edge--)
 		{
-            cin >> from;
-			cin>>verNum;
-            edge += verNum;
-            for (size_t j = 0; j < verNum; j++) {
-                cin >> to >> flow;
-                G.Edge_flow(from, to, flow);
-            }
-			// G.Edge_flow(i,j,flow);
+			cin>>i>>j>>flow; javascript:;
+			G.Edge_flow(i,j,flow);
 		}
 		cout<<"The max_flow is :"<<G.Max_flow()<<endl;
 		cout<<"One of the min_cut is :";
